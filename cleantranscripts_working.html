@@ -9,26 +9,17 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: auto;
       padding: 20px;
     }
     .container {
-      padding: 25px;
+      max-width: 700px;
+      margin: 0 auto;
     }
     button {
-      padding: 18px 26px;
-      font-size: 16px;
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-    }
-    button:hover {
-      background: #0056b3;
+      padding: 8px 12px;
     }
     #status {
-      margin-top: 15px;
-      font-weight: bold;
-      color: #444;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -52,6 +43,7 @@
     <button onclick="processCSV()">Process CSV</button>
 
     <div id="status"></div>
+
   </div>
 
 </body>
