@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Image-split Text Cleaner — Upload → Split → Download</title>
+  <style>
+    body{
+      font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;
+      margin:24px;
+      color:#0f172a
+    }
+    .card{
+      padding:20px;
+      max-width:920px;
+      margin:auto
+    }
+    .controls{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap}
+    input[type=file]{
+      padding:6px
+    }
+    button{
+      padding:8px 12px;
+      background:#0ea5a4;
+      color:white;
+      cursor:pointer
+    }
+    button.secondary{
+      background:#64748b
+    }
+    ul.files{
+      list-style:none;
+      padding:0;
+      margin:12px 0
+    }
+    li.file{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 10px;
+      border-radius:8px;
+      background:#f1f5f9;
+      margin-bottom:8px
+    }
+    pre{
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#0f172a;
+      color:#f8fafc;
+      padding:12px;
+      border-radius:8px;
+      overflow:auto
+    }
+    .small{
+      font-size:13px;
+           color:#64748b
+    }
+    .download-all{
+      margin-top:12px
+    }
+    a.link{
+      color:#0ea5a4
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Image‑split Text Cleaner</h1>
+    <p class="lead">Upload a plain text file. The script splits the file on occurrences of <code>Image &lt;number&gt;</code>, removes the marker and a leading <code>Transcription:</code> (if present immediately after the marker), and preserves all line breaks and symbols. Download each split file or a ZIP containing them all.</p>
+
+    <div class="controls">
+      <input id="fileInput" type="file" accept=".txt,text/plain" />
+      <button id="processBtn" class="secondary">Process</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+
+    <div id="status" class="small"></div>
+
+    <ul id="outputList" class="files" hidden></ul>
+
+    <div id="actions" class="download-all" hidden>
+      <button id="downloadZip">Download all as ZIP</button>
+    </div>
+
+    <hr />
+    <div class="small">Notes: This is client-side only — nothing is uploaded to a server. It works in modern browsers. If your file uses another marker (e.g. lowercase <code>image</code>), the script will still match case-insensitively.</div>
+  </div>
+
+  <!-- JSZip and FileSaver from CDN for bundling downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <script>
+    // Helpers and UI
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('processBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const dropZone = document.getElementById('dropZone');
+    const status = document.getElementById('status');
+    const outputList = document.getElementById('outputList');
+    const actions = document.getElementById('actions');
+    const downloadZipBtn = document.getElementById('downloadZip');
+
+    let lastFiles = []; // [{name, blob}]
+
+    function setStatus(txt){ status.textContent = txt }
+    function resetUI(){ outputList.innerHTML=''; outputList.hidden=true; actions.hidden=true; setStatus('') ; lastFiles = [] }
+
+    clearBtn.addEventListener('click', ()=>{ fileInput.value=''; resetUI(); })
+
+    // Drag & drop
+    ;['dragenter','dragover'].forEach(ev=>{
+      dropZone.addEventListener(ev, e=>{ e.preventDefault(); dropZone.style.borderColor='#94a3b8' })
+    })
+    ;['dragleave','drop'].forEach(ev=>{
+      dropZone.addEventListener(ev, e=>{ e.preventDefault(); dropZone.style.borderColor='#e2e8f0' })
+    })
+    dropZone.addEventListener('drop', e=>{
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(f) fileInput.files = e.dataTransfer.files;
+    })
+
+    // Process
+    processBtn.addEventListener('click', ()=>{
+      const f = fileInput.files && fileInput.files[0];
+      if(!f) return setStatus('Please choose a .txt file first.');
+      if(!/text\/.+|\.txt$/i.test(f.type || f.name)) {
+        // allow if extension .txt even if type is empty
+        if(!/\.txt$/i.test(f.name)) return setStatus('Please upload a plain text (.txt) file.');
+      }
+      setStatus('Reading file...');
+      const reader = new FileReader();
+      reader.onload = (ev)=>{
+        const text = ev.target.result;
+        try{
+          const parts = splitByImage(text);
+          if(parts.length === 0){ setStatus('No Image <number> markers found. No files produced.'); return }
+          createDownloadList(parts);
+          setStatus(`Created ${parts.length} file(s).`);
+        }catch(err){ console.error(err); setStatus('Error while processing file: '+err.message) }
+      }
+      reader.onerror = ()=> setStatus('Error reading file');
+      reader.readAsText(f, 'utf-8');
+    })
+
+    // Split logic: matches "Image <number>" (case-insensitive) and grabs content until next marker or EOF
+    function splitByImage(text){
+      const regex = /Image\s+(\d+)\s*([\s\S]*?)(?=Image\s+\d+|$)/gi;
+      const results = [];
+      let m;
+      while((m = regex.exec(text)) !== null){
+        const number = m[1];
+        let content = m[2];
+        // Remove leading "Transcription:" only if it appears at the start (allowing whitespace before it)
+        content = content.replace(/^\s*Transcription:\s*/i, '');
+        // Trim only leading/trailing newlines and spaces, preserve internal formatting
+        content = content.replace(/^\n+|\n+$/g, '');
+        // Create filename-type-safe name
+        const safeName = `image_${number}.txt`;
+        results.push({name: safeName, number: number, text: content});
+      }
+      return results;
+    }
+
+    function createDownloadList(parts){
+      outputList.innerHTML='';
+      outputList.hidden=false;
+      lastFiles = parts.map(p=>({name:p.name, blob:new Blob([p.text], {type:'text/plain;charset=utf-8'})}));
+
+      parts.forEach((p, idx)=>{
+        const li = document.createElement('li'); li.className='file';
+        const left = document.createElement('div');
+        left.style.maxWidth = '72%';
+        const title = document.createElement('div'); title.textContent = p.name; title.style.fontWeight='600';
+        const preview = document.createElement('pre'); preview.textContent = p.text.substring(0, 1000) + (p.text.length>1000? '\n\n…(truncated preview)':'' );
+        left.appendChild(title); left.appendChild(preview);
+
+        const right = document.createElement('div'); right.style.display='flex'; right.style.flexDirection='column'; right.style.gap='8px';
+        const dlBtn = document.createElement('button'); dlBtn.textContent='Download'; dlBtn.addEventListener('click', ()=>{
+          saveAs(lastFiles[idx].blob, lastFiles[idx].name);
+        });
+        right.appendChild(dlBtn);
+
+        li.appendChild(left); li.appendChild(right);
+        outputList.appendChild(li);
+      });
+
+      actions.hidden=false;
+    }
+
+    // Download ZIP
+    downloadZipBtn.addEventListener('click', async ()=>{
+      if(!lastFiles || lastFiles.length===0) return setStatus('No files to zip');
+      setStatus('Preparing ZIP...');
+      const zip = new JSZip();
+      lastFiles.forEach(f => zip.file(f.name, f.blob));
+      const content = await zip.generateAsync({type:'blob'});
+      saveAs(content, 'image_splits.zip');
+      setStatus(`Downloaded ZIP containing ${lastFiles.length} files.`);
+    })
+
+    // Auto-process if user selects a file via file input
+    fileInput.addEventListener('change', ()=>{ setStatus('File selected: '+(fileInput.files[0] && fileInput.files[0].name || '')); })
+
+  </script>
+</body>
+</html>
