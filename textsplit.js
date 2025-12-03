@@ -4,6 +4,7 @@ const fileInput = $('fileInput');
 const status = $('status');
 const zipWrap = $('zipWrap');
 
+
 let splitFiles = [];
 
 $('clearBtn').onclick = resetUI;
@@ -54,13 +55,16 @@ function splitByImage(text) {
   const out = [];
   let m;
 
-  while ((m = regex.exec(text))) {
+  while ((m = regex.exec(text))) {   
+    const num = String(m[1]).padStart(4, '0');
+    const baseName = fileInput.files[0].name.replace(/\.[^.]+$/, ""); // remove extension
+
     let content = m[2]
       .replace(/^\s*Transcription:\s*/i, '')   // drop leading "Transcription:"
       .replace(/^\n+|\n+$/g, '');              // trim leading/trailing newlines
 
     out.push({
-      name: `image_${m[1]}.txt`,
+      name: `${baseName}_${num}.txt`, // ${fileInput.files[0].name} image
       text: content
     });
   }
@@ -76,7 +80,8 @@ $('downloadZip').onclick = async () => {
   splitFiles.forEach(f => zip.file(f.name, f.blob));
 
   const blob = await zip.generateAsync({type: 'blob'});
-  saveAs(blob, 'split_texts.zip');
+  const baseName = fileInput.files[0].name.replace(/\.[^.]+$/, ""); // remove extension
+  saveAs(blob, `${baseName}.zip`); 
   setStatus(`ZIP downloaded.`);
 };
 
