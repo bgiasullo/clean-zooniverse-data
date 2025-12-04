@@ -1,6 +1,6 @@
 // Read file
 document.getElementById("processBtnXhtml").onclick = function () {
-  const file = document.getElementById("fileInput").files[0];
+  const file = document.getElementById("fileInputXHTML").files[0];
   if (!file) return alert("Please upload an .xhtml file.");
 
   const reader = new FileReader();
