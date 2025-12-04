@@ -16,10 +16,12 @@
     <h2>BHL tools</h2>
 
     <div class="tool">
-        
-    <h3>XHTML Page Extractor</h3>
 
-    <p>Useful if you are downloading transcription XHTML files from FromThePage and need to import them to BHL, but BHL Admin is being finicky.</p>
+        <details><summary>
+            Clean XHTML transcription file for import to BHL
+        </summary>
+
+             <p>Useful if you are downloading transcription XHTML files from FromThePage and need to import them to BHL, but BHL Admin is being finicky.</p>
 
                         <script src="textsplit.js"></script>
 
@@ -27,8 +29,9 @@
 <button id="processBtn">Process File</button>
 <br><br>
 <a id="downloadLink"></a>
+        </details>
 
-        </div
+    </div>
             
     </div>
     
@@ -43,7 +46,6 @@
             <details>
                 <summary>Split text file into multiple files</summary>
 
-                <h3>Split text file into multiple files</h3>
 
                 <p>Useful if you have a plain text file containing multiple image transcriptions, each separated by Image [number], and need to separate them for upload to Zooniverse. Accepts a plain text file and performs the following actions:</p>
 
@@ -81,7 +83,6 @@
             <details>
 
                 <summary>Zooniverse data cleanup and BHL prep</summary>
-                <h3>Zooniverse Data Cleanup</h3>
 
                 <p>Useful if you download transcription data from Zooniverse and need to prepare it for upload into BHL. Accepts a CSV file and performs the following actions:</p>
                 <ol>
