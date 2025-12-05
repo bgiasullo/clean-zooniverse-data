@@ -69,7 +69,7 @@ function splitByMarker(text, marker) {
   if (parts[0].trim() === '') parts.shift();
 
   // Re-add the marker to the *start* of each chunk so the user keeps it
-  return parts.map(p => marker + p.trimStart());
+  return parts.map(p => marker + "\n\n" + p.trimStart());
 }
 
 // ------------------ ZIP Download ------------------
