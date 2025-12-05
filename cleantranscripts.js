@@ -26,6 +26,7 @@ function applyReplacements(text) {
     .replace(/♀/g, "[female]")
     .replace(/⚥/g, "[intersex]")
     .replace(/\\"/g, '"')
+    .replace(/Â/g, "")
     .replace(/\\n/g, "\n");
 }
 
