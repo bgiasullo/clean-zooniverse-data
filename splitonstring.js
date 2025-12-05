@@ -73,7 +73,7 @@ function splitByMarker(text, marker) {
 }
 
 // ------------------ ZIP Download ------------------
-$('downloadZip').onclick = async () => {
+$('downloadZipString').onclick = async () => {
   if (!splitFiles.length) return;
   setStatusString('Creating ZIP...');
 
