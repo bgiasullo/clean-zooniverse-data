@@ -87,7 +87,6 @@
             <details>
                 <summary>Split text file into multiple files on instances of string input</summary>
 
-
                 <p>Useful if you have a plain text file containing multiple image transcriptions, each separated by a text string of your choosing, and need to separate them for upload to Zooniverse. Accepts a plain text file and performs the following actions:</p>
 
                 <ol>
@@ -96,26 +95,26 @@
                     <li>Produces a ZIP file containing all text files for download</li>
                 </ol>
 
-                <input id="splitString" type="text">
+                <label>Input text to split file on:
+                    <input id="splitString" type="text">
+                </label>
+               
                 
-                <div class="controls">
-                    <input id="fileInputString" type="file" accept=".txt">
-                    <button id="processBtnString">Process</button>
-                    <button id="clearBtnString">Clear</button>
-                </div>
+               <button id="processBtnString">Process</button>
+<button id="clearBtnString">Clear</button>
 
-                <ul id="outputList" hidden></ul>
+<p id="statusString"></p>
 
-                <div id="statusString" class="small"></div>
-
-                <div id="zipWrapString" hidden>
+<div id="zipWrapString" hidden>
+  <button id="downloadZip">Download ZIP</button>
+</div>
 
                     <button id="downloadZip">Download zipped text files</button>
                 </div>
 
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-                <script src="splitWithString.js"></script>
+                <script src="splitonstring.js"></script>
 
             </details>
 
