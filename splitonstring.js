@@ -5,7 +5,7 @@ const statusString = $('statusString');
 const zipWrapString = $('zipWrapString');
 const splitStringInput = $('splitString');  // <-- NEW input for split text
 
-let splitFiles = [];
+let splitFilesString = [];
 
 $('clearBtnString').onclick = resetUI;
 $('processBtnString').onclick = handleString;
@@ -15,7 +15,7 @@ function setStatusString(t) { statusString.textContent = t; }
 
 function resetUI() {
   zipWrapString.hidden = true;
-  splitFiles = [];
+  splitFilesString = [];
   setStatusString('');
   fileInputString.value = '';
   splitStringInput.value = '';
@@ -39,7 +39,7 @@ function handleString() {
       const parts = splitByMarker(text, marker);
       if (!parts.length) return setStatusString('No occurrences found for split marker.');
 
-      splitFiles = parts.map((p, i) => {
+      splitFilesString = parts.map((p, i) => {
         const num = String(i + 1).padStart(4, '0');
         const baseName = fileInputString.files[0].name.replace(/\.[^.]+$/, "");
         return {
@@ -74,11 +74,11 @@ function splitByMarker(text, marker) {
 
 // ------------------ ZIP Download ------------------
 $('downloadZipString').onclick = async () => {
-  if (!splitFiles.length) return;
+  if (!splitFilesString.length) return;
   setStatusString('Creating ZIP...');
 
   const zip = new JSZip();
-  splitFiles.forEach(f => zip.file(f.name, f.blob));
+  splitFilesString.forEach(f => zip.file(f.name, f.blob));
 
   const blob = await zip.generateAsync({ type: 'blob' });
   const baseName = fileInputString.files[0].name.replace(/\.[^.]+$/, "");
