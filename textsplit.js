@@ -21,6 +21,8 @@ function resetUI() {
 }
 
 // ------------------ Processing ------------------
+
+
 function handleProcess() {
   const file = fileInputText.files[0];
   if (!file) return setStatusText('Choose a .txt file first.');
@@ -31,7 +33,7 @@ function handleProcess() {
     try {
       const text = e.target.result;
       const parts = splitByImage(text);
-      if (!parts.length) return setStatusText('No Image <number> markers found.');
+      if (!parts.length) return setStatusText('No splitter strings found.');
 
       splitFiles = parts.map(p =>
         ({ name: p.name, blob: new Blob([p.text], {type:'text/plain'}) })
@@ -51,8 +53,9 @@ function handleProcess() {
 
 // Core splitting logic
 function splitByImage(text) {
-  const regex = "** This transcript was generated using AI then edited by volunteers. The text contains errors. **
-";
+  let textToSplit = prompt("Split file on instances of this string:");
+  
+  const regex = textToSplit;
   const out = [];
   let m;
 
