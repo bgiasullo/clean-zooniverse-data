@@ -40,10 +40,10 @@ function handleString() {
       if (!parts.length) return setStatusString('No occurrences found for split marker.');
 
       splitFilesString = parts.map((p, i) => {
-        const num = String(i + 1).padStart(4, '0');
-        const baseName = fileInputString.files[0].name.replace(/\.[^.]+$/, "");
+        const numSt = String(i + 1).padStart(4, '0');
+        const baseNameSt = fileInputString.files[0].name.replace(/\.[^.]+$/, "");
         return {
-          name: `${baseName}_${num}.txt`,
+          name: `${baseNameSt}_${numSt}.txt`,
           blob: new Blob([p], { type: 'text/plain' })
         };
       });
@@ -81,8 +81,8 @@ $('downloadZipString').onclick = async () => {
   splitFilesString.forEach(f => zip.file(f.name, f.blob));
 
   const blob = await zip.generateAsync({ type: 'blob' });
-  const baseName = fileInputString.files[0].name.replace(/\.[^.]+$/, "");
-  saveAs(blob, `${baseName}.zip`);
+  const baseNameSt = fileInputString.files[0].name.replace(/\.[^.]+$/, "");
+  saveAs(blob, `${baseNameSt}.zip`);
   setStatusString(`ZIP downloaded.`);
 };
 
